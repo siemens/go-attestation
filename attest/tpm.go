@@ -310,6 +310,10 @@ type TPM struct {
 	tpm tpmBase
 }
 
+func (t *TPM) GetTpmBase() tpmBase {
+	return t.tpm
+}
+
 // Close shuts down the connection to the TPM.
 func (t *TPM) Close() error {
 	return t.tpm.close()
