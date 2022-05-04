@@ -18,6 +18,7 @@
 package attest
 
 import (
+	"crypto"
 	"fmt"
 
 	tpm1 "github.com/google/go-tpm/tpm"
@@ -119,12 +120,14 @@ func (k *windowsKey12) certify(tb tpmBase, handle interface{}) (*CertificationPa
 // windowsKey20 represents a key bound to a TPM 2.0.
 type windowsKey20 struct {
 	hnd uintptr
+	blob []byte
 
 	pcpKeyName        string
 	public            []byte
 	createData        []byte
 	createAttestation []byte
 	createSignature   []byte
+	cryptosigner      crypto.Signer
 }
 
 func newWindowsKey20(hnd uintptr, pcpKeyName string, public, createData, createAttest, createSig []byte) ak {
@@ -136,6 +139,40 @@ func newWindowsKey20(hnd uintptr, pcpKeyName string, public, createData, createA
 		createAttestation: createAttest,
 		createSignature:   createSig,
 	}
+}
+
+func NewWindowsKey20(hnd uintptr, pcpKeyName string, blob, public,
+	createData, createAttest, createSig []byte, cryptoSigner crypto.Signer) *windowsKey20 {
+	return &windowsKey20{
+		hnd:               hnd,
+		pcpKeyName:        pcpKeyName,
+		blob:              blob,
+		public:            public,
+		createData:        createData,
+		createAttestation: createAttest,
+		createSignature:   createSig,
+		cryptosigner:      cryptoSigner,
+	}
+}
+
+func (k *windowsKey20) certificationParameters() CertificationParameters {
+	return CertificationParameters{
+		Public:            k.public,
+		CreateAttestation: k.createAttestation,
+		CreateSignature:   k.createSignature,
+	}
+}
+
+func (k *windowsKey20) decrypt(tb tpmBase, ctxt []byte) ([]byte, error) {
+	return nil, fmt.Errorf("not implemented")
+}
+
+func (k *windowsKey20) sign(tb tpmBase, digest []byte, pub crypto.PublicKey, opts crypto.SignerOpts) ([]byte, error) {
+	return k.cryptosigner.Sign(nil, digest, opts)
+}
+
+func (k *windowsKey20) blobs() ([]byte, []byte, error) {
+	return k.public, k.blob, nil
 }
 
 func (k *windowsKey20) marshal() ([]byte, error) {
