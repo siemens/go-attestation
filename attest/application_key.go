@@ -39,6 +39,10 @@ type Key struct {
 	tpm tpmBase
 }
 
+func NewKey(key key, pub crypto.PublicKey, tpm tpmBase) *Key {
+	return &Key{key: key, pub: pub, tpm: tpm}
+}
+
 // signer implements crypto.Signer returned by Key.Private().
 type signer struct {
 	key key
