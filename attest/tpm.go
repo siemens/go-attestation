@@ -112,7 +112,7 @@ var (
 	rsaKeyTemplate = tpm2.Public{
 		Type:          tpm2.AlgRSA,
 		NameAlg:       tpm2.AlgSHA256,
-		Attributes:    tpm2.FlagSignerDefault ^ tpm2.FlagRestricted,
+		Attributes:    tpm2.FlagStorageDefault ^ tpm2.FlagRestricted ^ tpm2.FlagSign,
 		RSAParameters: &tpm2.RSAParams{},
 	}
 )
